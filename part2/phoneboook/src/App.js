@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Person from './components/Person'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
+import phonebookService from './services/phonebook'
 import axios from 'axios'
 
 
@@ -17,17 +18,42 @@ const App = () => {
     const [ newName, setNewName ] = useState('')
     const [ newNumber, setNewNumber ] = useState('')
     const [ filterWord, setFilterWord ] = useState('')
+    const [notification, setNotification] = useState(null)
+    const [errorMessage, setErrorMessage] = useState(null)
 
-    const hook = () => {
-      console.log('effect')
+
+    // const hook = () => {
+    //   console.log('effect')
       
-      axios
-        .get('http://localhost:3001/persons')
+    //   axios
+    //     .get('http://localhost:3001/persons')
+    //     .then(response =>{
+    //       setPersons(response.data)
+    //     })
+    // }
+    // useEffect(hook, [])
+
+
+    useEffect(() => {
+      phonebookService
+          .getAll()
+          .then(initialPhonebook => {
+            setPersons(initialPhonebook)
+          })
+    }, [])
+
+    // 处理删除人员信息的逻辑
+    // delete 操作
+    const toggleDeleteOf = id => {
+      const savePersons = persons.filter(n => n.id !== id)
+      phonebookService
+        .del(id)
         .then(response =>{
-          setPersons(response.data)
+          setPersons(savePersons)
         })
     }
-    useEffect(hook, [])
+
+    
 
 
     const addPerson =(event) => {
@@ -38,16 +64,81 @@ const App = () => {
         console.log('name', nameList)
 
         if (nameList.indexOf(newName) !==-1) {
-            console.log('exitst')
-            window.alert(`${newName} is already added to phonebook`
-            )
+            const idIndex = nameList.indexOf(newName)
+            const oldPerson = persons[idIndex]
+            
+
+            const r = window.confirm(`${newName} is already added to phonebook`)
+            if (r){
+              const personObject = {
+                name: newName,
+                number: newNumber,
+              }
+
+              phonebookService
+              // .update(oldPerson.id, personObject)
+              .update(oldPerson.id, {...oldPerson, number: newNumber})
+
+                .then(returnData => {
+                  console.log('returndata', returnData)
+                  // setPersons(persons.concat(returnData))
+                  setPersons(
+                    persons.map(n => (n.name === newName ? returnData : n))
+                    )
+              })
+              .catch(error => {
+                  setErrorMessage(
+                    `Information of '${personObject.name}' was already removed from server` 
+                )
+                setTimeout(() => {
+                    setErrorMessage(null)
+                }, 5000)
+
+                // 过滤 如果发生错误说明 服务器json没有这条数据，不要显示
+                // setPersons(persons.filter(n => n.id !== oldPerson.id))
+              })
+
+            }
         } else {
             const personObject = {
                 name: newName,
                 number: newNumber,
             }
-            setPersons(persons.concat(personObject))
+            // axios
+            //   .post('http://localhost:3001/persons',personObject)
+            //   .then(response => {
+            //     setPersons(persons.concat(personObject))
+            //   })
+
+            phonebookService
+              .create(personObject)
+              .then(returnData => {
+                setPersons(persons.concat(returnData))
+                setNotification(alert(`Added  ${personObject.name}`))
+                setTimeout(() => {
+                  setNotification(null)
+                }, 5000)
+
+              })
+              // .then(`Added  ${personObject.name}`)
+            // promise.then(() => {
+            //   setNotification(notify(`Added ${newName}`, false))
+            //   // setTimeout(() => clearNotification(), 3000)
+            // })
+
+              // .catch(error =>{
+              //   setNotification(`Added  ${personObject.name}`)
+              //   setTimeout(() => {
+              //     setNotification(null)
+              // }, 5000)
+              // })
+
+
+            // setPersons(persons.concat(personObject))
         }
+        
+          
+
         setNewName('')
         setNewNumber('')
         // const personObject = {
@@ -116,9 +207,12 @@ const App = () => {
                     />
         <h2>Numbers</h2>
         <div>
-            {/* {persons.map((person) =>  */}
             {filterItems.map((person) => 
-                <Person key={person.name} person={person}/>
+                <Person 
+                 key={person.id}
+                 person={person}
+                 toggleDelete ={() => toggleDeleteOf(person.id)}
+                />
             )}
         </div>
       </div>

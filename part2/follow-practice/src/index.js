@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import axios from  'axios'
 import Note from './components/Note'
 import App from './App'
+import './index.css'
 
 // const promise = axios.get('http://localhost:3001/notes')
 

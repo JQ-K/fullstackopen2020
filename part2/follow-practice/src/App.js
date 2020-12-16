@@ -43,7 +43,8 @@ const App = (props)=> {
     //     const changeNote = {...note, important: !note.important }
         
     //     // 使用put请求方式更新
-    //     // Map 方法通过将旧数组中的每个项映射到新数组中的一个项来创建一个新数组。 在我们的示例中，新数组被有条件地创建，即如果note.id !== id为true，我们只需将项从旧数组复制到新数组中。 如果条件为 false，则将服务器返回的 note 对象添加到数组中。
+    //     // Map 方法通过将旧数组中的每个项映射到新数组中的一个项来创建一个新数组。 
+    //     // 在我们的示例中，新数组被有条件地创建，即如果note.id !== id为true，我们只需将项从旧数组复制到新数组中。 如果条件为 false，则将服务器返回的 note 对象添加到数组中。
     //     axios.put(url, changeNote).then(response => {
     //         setNotes(notes.map(note => note.id !== id ? note: response.data))
     //     })

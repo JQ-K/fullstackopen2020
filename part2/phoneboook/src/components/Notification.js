@@ -6,10 +6,10 @@ const Notification = ({ message }) => {
     }
   
     return (
-      <div className="error">
+      <div className="message">
         {message}
       </div>
     )
   }
 
-export default Notification
+export default Notification 

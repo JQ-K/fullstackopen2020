@@ -3,6 +3,7 @@ import Person from './components/Person'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import phonebookService from './services/phonebook'
+import Notification from './components/Notification'
 import axios from 'axios'
 
 
@@ -20,6 +21,8 @@ const App = () => {
     const [ filterWord, setFilterWord ] = useState('')
     const [notification, setNotification] = useState(null)
     const [errorMessage, setErrorMessage] = useState(null)
+    const [message, setMessage] = useState(null)
+
 
 
     // const hook = () => {
@@ -68,8 +71,8 @@ const App = () => {
             const oldPerson = persons[idIndex]
             
 
-            const r = window.confirm(`${newName} is already added to phonebook`)
-            if (r){
+            // const r = window.confirm(`${newName} is already added to phonebook`)
+            // if (r){
               const personObject = {
                 name: newName,
                 number: newNumber,
@@ -86,19 +89,30 @@ const App = () => {
                     persons.map(n => (n.name === newName ? returnData : n))
                     )
               })
+
+              // setMessage(
+              //   `Added ${newName}`
+              // )
+              // setTimeout(() => {
+              //   setMessage(null)
+              // }, 5000)
+
+
               .catch(error => {
                   setErrorMessage(
-                    `Information of '${personObject.name}' was already removed from server` 
+                    `Information of ${newName} was already removed from server` 
                 )
                 setTimeout(() => {
                     setErrorMessage(null)
                 }, 5000)
 
+             
+
                 // 过滤 如果发生错误说明 服务器json没有这条数据，不要显示
                 // setPersons(persons.filter(n => n.id !== oldPerson.id))
               })
 
-            }
+            // }
         } else {
             const personObject = {
                 name: newName,
@@ -114,9 +128,10 @@ const App = () => {
               .create(personObject)
               .then(returnData => {
                 setPersons(persons.concat(returnData))
-                setNotification(alert(`Added  ${personObject.name}`))
+                // setNotification(alert(`Added  ${personObject.name}`))
+                setMessage(`Added ${personObject.name}`)
                 setTimeout(() => {
-                  setNotification(null)
+                  setMessage(null)
                 }, 5000)
 
               })
@@ -174,6 +189,10 @@ const App = () => {
     return (
       <div>
         <h2>Phonebook</h2>
+        <Notification message={message} />
+        <Notification message={errorMessage}/>
+        {/* setTimeout(() => setTellFlashMessage(null), 5000) */}
+
         {/* <div>
             filter shown with <input 
                               value={filterWord}
